@@ -6,6 +6,7 @@
       "Type": "String"
     }
   },
+
   "Resources": {
     "TSEAWSDemoVPC": {
       "Type": "AWS::EC2::VPC",
@@ -14,6 +15,21 @@
         "EnableDnsSupport": true,
         "EnableDnsHostnames": true,
         "InstanceTenancy": "default"
+      }
+    },
+    "TSEAWSDemoSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "TSEAWSDemoStack",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "VpcId": { "ref" : "TSEAWSDemoVPC" }
       }
     },
     "TSEAWSDemoIG" : {
@@ -82,20 +98,6 @@
         "SubnetId": {
           "Ref": "TSEAWSDemoSubnet"
         }
-      }
-    },
-    "TSEAWSDemoSG": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "TSEAWSDemoStack",
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "22",
-            "ToPort": "22",
-            "CidrIp": "0.0.0.0/0"
-          }
-        ]
       }
     }
   }
