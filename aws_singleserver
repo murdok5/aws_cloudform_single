@@ -1,0 +1,102 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "KeyPair": {
+      "Description": "The EC2 KeyPair for SSH",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "TSEAWSDemoVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "InstanceTenancy": "default"
+      }
+    },
+    "TSEAWSDemoIG" : {
+         "Type" : "AWS::EC2::InternetGateway",
+         "Properties" : {}
+    },
+    "TSEAWSDemoVPCGA": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "TSEAWSDemoIG"
+        },
+        "VpcId": {
+          "Ref": "TSEAWSDemoVPC"
+        }
+      }
+    },
+    "TSEAWSDemoRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {"Ref": "TSEAWSDemoVPC"}
+      }
+    },
+    "TSEAWSDemoPublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "TSEAWSDemoRouteTable"
+        },
+        "GatewayId": {
+          "Ref": "TSEAWSDemoIG"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0"
+      },
+      "DependsOn": [
+        "TSEAWSDemoVPCGA"
+      ]
+    },
+    "TSEAWSDemoSubnet": {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "CidrBlock" : "10.0.0.0/16",
+        "MapPublicIpOnLaunch" : true,
+        "VpcId" : { "Ref" : "TSEAWSDemoVPC" }
+      }
+    },
+    "TSEAWSDemoMasterServer": {
+      "Type":"AWS::EC2::Instance",
+      "Properties": {
+        "KeyName": {"Ref" : "KeyPair" },
+        "ImageId": "ami-ca56b5aa",
+        "InstanceType": "m4.large",
+        "SubnetId": { "Ref": "TSEAWSDemoSubnet" },
+        "SecurityGroupIds": [ { "Ref": "TSEAWSDemoSG" } ]
+      },
+      "DependsOn": [
+        "TSEAWSDemoPublicRoute"
+      ]
+    },
+    "TSEAWSDemoRoutetoSubnet": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "TSEAWSDemoRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "TSEAWSDemoSubnet"
+        }
+      }
+    },
+    "TSEAWSDemoSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "TSEAWSDemoStack",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    }
+  }
+}
