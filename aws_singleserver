@@ -29,7 +29,9 @@
             "CidrIp": "0.0.0.0/0"
           }
         ],
-        "VpcId": { "ref" : "TSEAWSDemoVPC" }
+        "VpcId": {
+          "Ref": "TSEAWSDemoVPC"
+        }
       }
     },
     "TSEAWSDemoIG" : {
