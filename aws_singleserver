@@ -38,6 +38,18 @@
             "FromPort": "22",
             "ToPort": "22",
             "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
           }
         ],
         "VpcId": {
@@ -122,11 +134,13 @@
           "  \"puppet_enterprise::puppet_master_host\": \"%{::trusted.certname}\"\n",
           "  \"puppet_enterprise::use_application_services\": true\n",
           "  \"puppet_enterprise::profile::master::r10k_remote\": \"/opt/puppetlabs/repos/control-repo.git\"\n",
-          "  \"puppet_enterprise::profile::master::r10k_private_key\": "/dev/null\"\n",
+          "  \"puppet_enterprise::profile::master::r10k_private_key\": \"/dev/null\"\n",
           "  \"puppet_enterprise::profile::master::code_manager_auto_configure\": true\n",
           "  \"puppet_enterprise::profile::master::check_for_updates\": false\n",
           "}\n",
-          "EOF\n"
+          "EOF\n",
+          "./puppet-enterprise-$version-el-7-x86_64/puppet-enterprise-installer -c pe.conf\n",
+          "./pe-demo/scripts/bootstrap.sh\n"
         ]]}}
       },
       "DependsOn": [
