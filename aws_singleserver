@@ -16,7 +16,7 @@
     "PuppetProject": {
       "Description": "The project the machine(s) exist for",
       "Type": "String"
-    },
+    }
   },
   "Resources": {
     "TSEAWSDemoVPC": {
@@ -102,6 +102,32 @@
           { "Key" : "department", "Value" : { "Ref": "PuppetDepartment" } },
           { "Key" : "project", "Value" : { "Ref": "PuppetProject" } }
         ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash\n",
+          "yum update -y aws-cfn-bootstrap\n",
+          "set -ex\n",
+          "version=2016.2.1\n",
+          "hostname $(curl http://169.254.169.254/latest/meta-data/local-hostname)\n",
+          "echo $(curl -s http://169.254.169.254/latest/meta-data/local-ipv4) $(hostname) >> /etc/hosts\n",
+          "mkdir -p /etc/puppetlabs/puppet\n",
+          "echo '*' > /etc/puppetlabs/puppet/autosign.conf\n",
+          "retrycurl() { set +e; while :; do curl \"$@\"; [ \"$?\" = 0 ] && break; done; set -e; }\n",
+          "retrycurl --max-time 30 -O https://s3.amazonaws.com/pe-builds/released/2016.2.1/puppet-enterprise-2016.2.1-el-7-x86_64.tar.gz\n",
+          "retrycurl --max-time 15 -o pe-demo.tar.gz http://tse-builds.s3-website-us-west-2.amazonaws.com/2016.2.x/releases/pe-demo-latest.tar.gz\n",
+          "tar -xzf puppet-enterprise-$version-el-7-x86_64.tar.gz\n",
+          "mkdir pe-demo && tar -xzf pe-demo.tar.gz -C pe-demo --strip-components 1\n",
+          "cat > pe.conf <<-EOF\n",
+          "{\n",
+          "  \"console_admin_password\": \"puppetlabs\"\n",
+          "  \"puppet_enterprise::puppet_master_host\": \"%{::trusted.certname}\"\n",
+          "  \"puppet_enterprise::use_application_services\": true\n",
+          "  \"puppet_enterprise::profile::master::r10k_remote\": \"/opt/puppetlabs/repos/control-repo.git\"\n",
+          "  \"puppet_enterprise::profile::master::r10k_private_key\": "/dev/null\"\n",
+          "  \"puppet_enterprise::profile::master::code_manager_auto_configure\": true\n",
+          "  \"puppet_enterprise::profile::master::check_for_updates\": false\n",
+          "}\n",
+          "EOF\n"
+        ]]}}
       },
       "DependsOn": [
         "TSEAWSDemoPublicRoute"
