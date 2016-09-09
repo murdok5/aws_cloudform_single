@@ -4,9 +4,20 @@
     "KeyPair": {
       "Description": "The EC2 KeyPair for SSH",
       "Type": "String"
-    }
+    },
+    "PuppetCreatedBy": {
+      "Description": "AWS Id of the person creating the machine",
+      "Type": "String"
+    },
+    "PuppetDepartment": {
+      "Description": "Puppet Department",
+      "Type": "String"
+    },
+    "PuppetProject": {
+      "Description": "The project the machine(s) exist for",
+      "Type": "String"
+    },
   },
-
   "Resources": {
     "TSEAWSDemoVPC": {
       "Type": "AWS::EC2::VPC",
@@ -85,7 +96,12 @@
         "ImageId": "ami-ca56b5aa",
         "InstanceType": "m4.large",
         "SubnetId": { "Ref": "TSEAWSDemoSubnet" },
-        "SecurityGroupIds": [ { "Ref": "TSEAWSDemoSG" } ]
+        "SecurityGroupIds": [ { "Ref": "TSEAWSDemoSG" } ],
+        "Tags" : [
+          { "Key" : "created_by", "Value" : { "Ref": "PuppetCreatedBy" } },
+          { "Key" : "department", "Value" : { "Ref": "PuppetDepartment" } },
+          { "Key" : "project", "Value" : { "Ref": "PuppetProject" } }
+        ],
       },
       "DependsOn": [
         "TSEAWSDemoPublicRoute"
