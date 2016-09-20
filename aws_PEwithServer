@@ -106,7 +106,6 @@
       "Properties": {
         "KeyName": {"Ref" : "KeyPair" },
         "ImageId": "ami-ca56b5aa",
-        "IamInstanceProfile" : "puppetlabs_aws_provisioner",
         "InstanceType": "m4.large",
         "SubnetId": { "Ref": "TSEAWSDemoSubnet" },
         "SecurityGroupIds": [ { "Ref": "TSEAWSDemoSG" } ],
@@ -116,7 +115,7 @@
           { "Key" : "project", "Value" : { "Ref": "PuppetProject" } }
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
-          "#!/bin/bash -x\n",
+          "#!/bin/bash\n",
           "yum update -y aws-cfn-bootstrap\n",
           "set -ex\n",
           "version=2016.2.1\n",
@@ -141,8 +140,30 @@
           "}\n",
           "EOF\n",
           "./puppet-enterprise-$version-el-7-x86_64/puppet-enterprise-installer -c pe.conf\n",
-          "/opt/puppetlabs/puppet/bin/gem install aws-sdk-core retries\n",
           "./pe-demo/scripts/bootstrap.sh\n"
+        ]]}}
+      },
+      "DependsOn": [
+        "TSEAWSDemoPublicRoute"
+      ]
+    },
+    "TSEAWSDemoCentos7a": {
+      "Type":"AWS::EC2::Instance",
+      "Properties": {
+        "KeyName": {"Ref" : "KeyPair" },
+        "ImageId": "ami-ca56b5aa",
+        "InstanceType": "t2.small",
+        "SubnetId": { "Ref": "TSEAWSDemoSubnet" },
+        "SecurityGroupIds": [ { "Ref": "TSEAWSDemoSG" } ],
+        "Tags" : [
+          { "Key" : "created_by", "Value" : { "Ref": "PuppetCreatedBy" } },
+          { "Key" : "department", "Value" : { "Ref": "PuppetDepartment" } },
+          { "Key" : "project", "Value" : { "Ref": "PuppetProject" } }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash\n",
+          "yum update -y aws-cfn-bootstrap\n",
+          "set -ex\n"
         ]]}}
       },
       "DependsOn": [
