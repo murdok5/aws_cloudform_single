@@ -47,6 +47,24 @@
           },
           {
             "IpProtocol": "tcp",
+            "FromPort": "61613",
+            "ToPort": "61613",
+            "CidrIp": "10.0.0.0/16"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "8142",
+            "ToPort": "8142",
+            "CidrIp": "10.0.0.0/16"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "8140",
+            "ToPort": "8140",
+            "CidrIp": "10.0.0.0/16"
+          },
+          {
+            "IpProtocol": "tcp",
             "FromPort": "80",
             "ToPort": "80",
             "CidrIp": "0.0.0.0/0"
