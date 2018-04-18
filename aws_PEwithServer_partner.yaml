@@ -1,0 +1,248 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "KeyPair": {
+            "Description": "The EC2 KeyPair for SSH",
+            "Type": "String"
+        },
+        "PuppetCreatedBy": {
+          "Description": "AWS Id of the person creating the machine",
+          "Type": "String"
+        },
+        "PuppetDepartment": {
+          "Description": "Puppet Department",
+          "Type": "String"
+        },
+        "PuppetProject": {
+          "Description": "The project the machine(s) exist for",
+          "Type": "String"
+        }
+    },
+    "Resources": {
+        "PuppetLabVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "10.0.0.0/16",
+                "EnableDnsSupport": true,
+                "EnableDnsHostnames": true,
+                "InstanceTenancy": "default"
+            }
+        },
+        "PuppetLabSG": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "TSEAWSDemoStack",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "PuppetLabVPC"
+                }
+            }
+        },
+        "PuppetLabIG": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {}
+        },
+        "PuppetLabVPCGA": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "PuppetLabIG"
+                },
+                "VpcId": {
+                    "Ref": "PuppetLabVPC"
+                }
+            }
+        },
+        "PuppetLabRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "PuppetLabVPC"
+                }
+            }
+        },
+        "PuppetLabPublicRoute": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PuppetLabRouteTable"
+                },
+                "GatewayId": {
+                    "Ref": "PuppetLabIG"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0"
+            },
+            "DependsOn": [
+                "PuppetLabVPCGA"
+            ]
+        },
+        "PuppetLabSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": "10.0.0.0/16",
+                "MapPublicIpOnLaunch": true,
+                "VpcId": {
+                    "Ref": "PuppetLabVPC"
+                }
+            }
+        },
+        "PuppetLabDemoMasterServer": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-65e0e305",
+                "InstanceType": "m4.large",
+                "SubnetId": {
+                    "Ref": "PuppetLabSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "PuppetLabSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "createdby",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n",
+                                "version=\"2017.3.5\"\n",
+                                "export PATH=/opt/puppetlabs/bin:$PATH\n",
+                                "export HOME=/root\n",
+                                "hostname $(curl http://169.254.169.254/latest/meta-data/local-hostname)\n",
+                                "echo $(curl -s http://169.254.169.254/latest/meta-data/local-ipv4) $(hostname) >> /etc/hosts\n",
+                                "nc_url=\"https://$hostname:4433/classifier-api/v1\"\n",
+                                "mkdir -p /etc/puppetlabs/puppet\n",
+                                "echo '*' > /etc/puppetlabs/puppet/autosign.conf\n",
+                                "retrycurl() { set +e; while :; do curl \"$@\"; [ \"$?\" = 0 ] && break; done; set -e; }\n",
+                                "retrycurl --max-time 30 -O \"https://s3.amazonaws.com/pe-builds/released/$version/puppet-enterprise-$version-el-7-x86_64.tar.gz\"\n",
+                                "tar -xzf puppet-enterprise-$version-el-7-x86_64.tar.gz\n",
+                                "cat > pe.conf <<-EOF\n",
+                                "{\n",
+                                "  \"console_admin_password\": \"puppetlabs\"\n",
+                                "  \"puppet_enterprise::puppet_master_host\": \"%{::trusted.certname}\"\n",
+                                "  \"puppet_enterprise::profile::master::r10k_remote\": \"https://github.com/puppetlabs-seteam/control-repo\"\n",
+                                "  \"puppet_enterprise::profile::master::code_manager_auto_configure\": true\n",
+                                "  \"puppet_enterprise::profile::master::check_for_updates\": false\n",
+                                "}\n",
+                                "EOF\n",
+                                "./puppet-enterprise-$version-el-7-x86_64/puppet-enterprise-installer -c pe.conf\n",
+                                "echo COMPLETE\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "PuppetLabPublicRoute"
+            ]
+        },
+        "PuppetLabDemoCentos71": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-65e0e305",
+                "InstanceType": "t2.small",
+                "SubnetId": {
+                    "Ref": "PuppetLabSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "PuppetLabSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "PuppetLabPublicRoute"
+            ]
+        },
+        "PuppetDemoRoutetoSubnet": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PuppetLabRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PuppetLabSubnet"
+                }
+            }
+        }
+    }
+}
