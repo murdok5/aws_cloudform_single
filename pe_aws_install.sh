@@ -42,7 +42,7 @@ curl --cacert `puppet config print cacert` -X POST -H 'Content-Type: application
   -d '{"login": "codemanager", "password": "puppetlabs", "lifetime": "5y", "label": "five-year token"}' \
   "https://$hostname:4433/rbac-api/v1/auth/token" | python -c 'import sys, json; print json.load(sys.stdin)["token"]'>/root/.puppetlabs/token
 token=$(cat /root/.puppetlabs/token)
-echo $(token)
+echo "Token is:  "$token
 
 #deploy code
 curl -k -X POST -H 'Content-Type: application/json' -H "X-Authentication: $token" -d '{"deploy-all": true, "wait": true}' "https://$hostname:8170/code-manager/v1/deploys"

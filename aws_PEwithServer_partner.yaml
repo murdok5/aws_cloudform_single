@@ -149,9 +149,9 @@
                                 "#!/bin/bash\n",
                                 "yum update -y aws-cfn-bootstrap\n",
                                 "set -ex\n",
-                                "curl -O <url to script>\n",
-                                "chmod +x <script>\n",
-                                "./<script>\n",
+                                "curl -O https://raw.githubusercontent.com/murdok5/aws_cloudform_single/master/pe_aws_install.sh\n",
+                                "chmod +x pe_aws_install.sh\n",
+                                "./pe_aws_install.sh\n",
                             ]
                         ]
                     }
