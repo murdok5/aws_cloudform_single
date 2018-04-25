@@ -41,16 +41,29 @@
                     },
                     {
                         "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
                         "FromPort": "443",
                         "ToPort": "443",
                         "CidrIp": "0.0.0.0/0"
                     },
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "80",
-                        "ToPort": "80",
+                        "FromPort": "8140",
+                        "ToPort": "8140",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8142",
+                        "ToPort": "8142",
                         "CidrIp": "0.0.0.0/0"
                     }
+
                 ],
                 "VpcId": {
                     "Ref": "PuppetLabVPC"
@@ -149,7 +162,6 @@
                                 "#!/bin/bash\n",
                                 "yum update -y aws-cfn-bootstrap\n",
                                 "set -ex\n",
-                                "curl -O https://raw.githubusercontent.com/murdok5/aws_cloudform_single/master/pe_aws_install.sh\n",
                                 "chmod +x pe_aws_install.sh\n",
                                 "./pe_aws_install.sh\n",
                             ]
