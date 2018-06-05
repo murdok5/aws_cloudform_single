@@ -173,7 +173,7 @@
                 "PuppetLabPublicRoute"
             ]
         },
-        "PuppetLabDemoCentos7-1": {
+        "PuppetLabDemoCentos71": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
@@ -226,7 +226,7 @@
                 "PuppetLabPublicRoute"
             ]
         },
-        "PuppetLabDemoCentos7-2": {
+        "PuppetLabDemoCentos72": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
@@ -279,7 +279,7 @@
                 "PuppetLabPublicRoute"
             ]
         },
-        "PuppetLabDemoWin2016-1": {
+        "PuppetLabDemoWin20161": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
@@ -330,7 +330,7 @@
                 "PuppetLabPublicRoute"
             ]
         },
-        "PuppetLabDemoWin2016-2": {
+        "PuppetLabDemoWin20162": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {

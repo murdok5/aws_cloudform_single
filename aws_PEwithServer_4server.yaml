@@ -19,7 +19,7 @@
         }
     },
     "Resources": {
-        "PuppetLabVPC": {
+        "MikeSmithSEVPC": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
                 "CidrBlock": "10.0.0.0/16",
@@ -28,10 +28,10 @@
                 "InstanceTenancy": "default"
             }
         },
-        "PuppetLabSG": {
+        "MikeSmithSESG": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "TSEAWSDemoStack",
+                "GroupDescription": "MikeSmithSEDemoStack",
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
@@ -66,59 +66,59 @@
 
                 ],
                 "VpcId": {
-                    "Ref": "PuppetLabVPC"
+                    "Ref": "MikeSmithSEVPC"
                 }
             }
         },
-        "PuppetLabIG": {
+        "MikeSmithSEIG": {
             "Type": "AWS::EC2::InternetGateway",
             "Properties": {}
         },
-        "PuppetLabVPCGA": {
+        "MikeSmithSEVPCGA": {
             "Type": "AWS::EC2::VPCGatewayAttachment",
             "Properties": {
                 "InternetGatewayId": {
-                    "Ref": "PuppetLabIG"
+                    "Ref": "MikeSmithSEIG"
                 },
                 "VpcId": {
-                    "Ref": "PuppetLabVPC"
+                    "Ref": "MikeSmithSEVPC"
                 }
             }
         },
-        "PuppetLabRouteTable": {
+        "MikeSmithSERouteTable": {
             "Type": "AWS::EC2::RouteTable",
             "Properties": {
                 "VpcId": {
-                    "Ref": "PuppetLabVPC"
+                    "Ref": "MikeSmithSEVPC"
                 }
             }
         },
-        "PuppetLabPublicRoute": {
+        "MikeSmithSEPublicRoute": {
             "Type": "AWS::EC2::Route",
             "Properties": {
                 "RouteTableId": {
-                    "Ref": "PuppetLabRouteTable"
+                    "Ref": "MikeSmithSERouteTable"
                 },
                 "GatewayId": {
-                    "Ref": "PuppetLabIG"
+                    "Ref": "MikeSmithSEIG"
                 },
                 "DestinationCidrBlock": "0.0.0.0/0"
             },
             "DependsOn": [
-                "PuppetLabVPCGA"
+                "MikeSmithSEVPCGA"
             ]
         },
-        "PuppetLabSubnet": {
+        "MikeSmithSESubnet": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
                 "CidrBlock": "10.0.0.0/16",
                 "MapPublicIpOnLaunch": true,
                 "VpcId": {
-                    "Ref": "PuppetLabVPC"
+                    "Ref": "MikeSmithSEVPC"
                 }
             }
         },
-        "PuppetLabDemoMasterServer": {
+        "MikeSmithSEDemoMasterServer": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
@@ -127,11 +127,11 @@
                 "ImageId": "ami-65e0e305",
                 "InstanceType": "m4.large",
                 "SubnetId": {
-                    "Ref": "PuppetLabSubnet"
+                    "Ref": "MikeSmithSESubnet"
                 },
                 "SecurityGroupIds": [
                     {
-                        "Ref": "PuppetLabSG"
+                        "Ref": "MikeSmithSESG"
                     }
                 ],
                 "Tags": [
@@ -170,10 +170,10 @@
                 }
             },
             "DependsOn": [
-                "PuppetLabPublicRoute"
+                "MikeSmithSEPublicRoute"
             ]
         },
-        "PuppetLabDemoCentos7-1": {
+        "MikeSmithSEDemoCentos71": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
@@ -182,11 +182,11 @@
                 "ImageId": "ami-65e0e305",
                 "InstanceType": "t2.medium",
                 "SubnetId": {
-                    "Ref": "PuppetLabSubnet"
+                    "Ref": "MikeSmithSESubnet"
                 },
                 "SecurityGroupIds": [
                     {
-                        "Ref": "PuppetLabSG"
+                        "Ref": "MikeSmithSESG"
                     }
                 ],
                 "Tags": [
@@ -223,10 +223,10 @@
                 }
             },
             "DependsOn": [
-                "PuppetLabPublicRoute"
+                "MikeSmithSEPublicRoute"
             ]
         },
-        "PuppetLabDemoCentos7-2": {
+        "MikeSmithSEDemoCentos72": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
@@ -235,11 +235,11 @@
                 "ImageId": "ami-65e0e305",
                 "InstanceType": "t2.medium",
                 "SubnetId": {
-                    "Ref": "PuppetLabSubnet"
+                    "Ref": "MikeSmithSESubnet"
                 },
                 "SecurityGroupIds": [
                     {
-                        "Ref": "PuppetLabSG"
+                        "Ref": "MikeSmithSESG"
                     }
                 ],
                 "Tags": [
@@ -276,10 +276,10 @@
                 }
             },
             "DependsOn": [
-                "PuppetLabPublicRoute"
+                "MikeSmithSEPublicRoute"
             ]
         },
-        "PuppetLabDemoWin2016-1": {
+        "MikeSmithSEDemoWin20161": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
@@ -288,11 +288,11 @@
                 "ImageId": "ami-c9deafb1",
                 "InstanceType": "t2.large",
                 "SubnetId": {
-                    "Ref": "PuppetLabSubnet"
+                    "Ref": "MikeSmithSESubnet"
                 },
                 "SecurityGroupIds": [
                     {
-                        "Ref": "PuppetLabSG"
+                        "Ref": "MikeSmithSESG"
                     }
                 ],
                 "Tags": [
@@ -327,10 +327,10 @@
                 }
             },
             "DependsOn": [
-                "PuppetLabPublicRoute"
+                "MikeSmithSEPublicRoute"
             ]
         },
-        "PuppetLabDemoWin2016-2": {
+        "MikeSmithSEDemoWin20162": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
@@ -339,11 +339,11 @@
                 "ImageId": "ami-c9deafb1",
                 "InstanceType": "t2.large",
                 "SubnetId": {
-                    "Ref": "PuppetLabSubnet"
+                    "Ref": "MikeSmithSESubnet"
                 },
                 "SecurityGroupIds": [
                     {
-                        "Ref": "PuppetLabSG"
+                        "Ref": "MikeSmithSESG"
                     }
                 ],
                 "Tags": [
@@ -378,17 +378,17 @@
                 }
             },
             "DependsOn": [
-                "PuppetLabPublicRoute"
+                "MikeSmithSEPublicRoute"
             ]
         },
-        "PuppetDemoRoutetoSubnet": {
+        "MikeSmithSERoutetoSubnet": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
                 "RouteTableId": {
-                    "Ref": "PuppetLabRouteTable"
+                    "Ref": "MikeSmithSERouteTable"
                 },
                 "SubnetId": {
-                    "Ref": "PuppetLabSubnet"
+                    "Ref": "MikeSmithSESubnet"
                 }
             }
         }
