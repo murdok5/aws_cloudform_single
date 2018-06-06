@@ -62,6 +62,12 @@
                         "FromPort": "8142",
                         "ToPort": "8142",
                         "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3389",
+                        "ToPort": "3389",
+                        "CidrIp": "0.0.0.0/0"
                     }
 
                 ],
@@ -124,7 +130,7 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-65e0e305",
+                "ImageId": "ami-a042f4d8",
                 "InstanceType": "m4.large",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
@@ -180,7 +186,7 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-65e0e305",
+                "ImageId": "ami-a042f4d8",
                 "InstanceType": "t2.medium",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
@@ -233,7 +239,7 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-65e0e305",
+                "ImageId": "ami-a042f4d8",
                 "InstanceType": "t2.medium",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
