@@ -16,6 +16,10 @@
         "PuppetProject": {
           "Description": "The project the machine(s) exist for",
           "Type": "String"
+        },
+        "lifetime": {
+          "Description": "The lifetime of the machines",
+          "Type": "String"
         }
     },
     "Resources": {
@@ -158,6 +162,12 @@
                         "Value": {
                             "Ref": "PuppetProject"
                         }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "lifetime"
+                        }
                     }
                 ],
                 "UserData": {
@@ -214,6 +224,12 @@
                         "Value": {
                             "Ref": "PuppetProject"
                         }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "lifetime"
+                        }
                     }
                 ],
                 "UserData": {
@@ -266,6 +282,12 @@
                         "Key": "project",
                         "Value": {
                             "Ref": "PuppetProject"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "lifetime"
                         }
                     }
                 ],
@@ -320,6 +342,12 @@
                         "Value": {
                             "Ref": "PuppetProject"
                         }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "lifetime"
+                        }
                     }
                 ],
                 "UserData": {
@@ -370,6 +398,12 @@
                         "Key": "project",
                         "Value": {
                             "Ref": "PuppetProject"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "lifetime"
                         }
                     }
                 ],
