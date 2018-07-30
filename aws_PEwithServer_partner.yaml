@@ -124,7 +124,7 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-65e0e305",
+                "ImageId": "ami-a042f4d8",
                 "InstanceType": "m4.large",
                 "SubnetId": {
                     "Ref": "PuppetLabSubnet"
@@ -179,7 +179,7 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-65e0e305",
+                "ImageId": "ami-a042f4d8",
                 "InstanceType": "t2.medium",
                 "SubnetId": {
                     "Ref": "PuppetLabSubnet"
@@ -232,7 +232,7 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-65e0e305",
+                "ImageId": "ami-a042f4d8",
                 "InstanceType": "t2.medium",
                 "SubnetId": {
                     "Ref": "PuppetLabSubnet"

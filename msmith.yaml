@@ -1,0 +1,877 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "KeyPair": {
+            "Description": "The EC2 KeyPair for SSH",
+            "Type": "String"
+        },
+        "PuppetCreatedBy": {
+          "Description": "AWS Id of the person creating the machine",
+          "Type": "String"
+        },
+        "PuppetDepartment": {
+          "Description": "Puppet Department",
+          "Type": "String"
+        },
+        "PuppetProject": {
+          "Description": "The project the machine(s) exist for",
+          "Type": "String"
+        },
+        "Lifetime": {
+          "Description": "The lifetime of the machines",
+          "Type": "String"
+        }
+    },
+    "Resources": {
+        "MSmithVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "10.0.0.0/16",
+                "EnableDnsSupport": true,
+                "EnableDnsHostnames": true,
+                "InstanceTenancy": "default"
+            }
+        },
+        "MSmithSG": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "TSEAWSDemoStack",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "7000",
+                        "ToPort": "7000",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8000",
+                        "ToPort": "8000",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8081",
+                        "ToPort": "8081",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8082",
+                        "ToPort": "8082",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8140",
+                        "ToPort": "8140",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8142",
+                        "ToPort": "8142",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3389",
+                        "ToPort": "3389",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+
+                ],
+                "VpcId": {
+                    "Ref": "MSmithVPC"
+                }
+            }
+        },
+        "MSmithIG": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {}
+        },
+        "MSmithVPCGA": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "MSmithIG"
+                },
+                "VpcId": {
+                    "Ref": "MSmithVPC"
+                }
+            }
+        },
+        "MSmithRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "MSmithVPC"
+                }
+            }
+        },
+        "MSmithPublicRoute": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MSmithRouteTable"
+                },
+                "GatewayId": {
+                    "Ref": "MSmithIG"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0"
+            },
+            "DependsOn": [
+                "MSmithVPCGA"
+            ]
+        },
+        "MSmithSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "CidrBlock": "10.0.0.0/16",
+                "MapPublicIpOnLaunch": true,
+                "VpcId": {
+                    "Ref": "MSmithVPC"
+                }
+            }
+        },
+        "MSmithDemoMaster": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-a042f4d8",
+                "InstanceType": "t2.xlarge",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "createdby",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n",
+                                "#chmod +x pe_aws_install.sh\n",
+                                "#./pe_aws_install.sh\n",
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoGitlab": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-a042f4d8",
+                "InstanceType": "t2.large",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "createdby",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n",
+                                "#chmod +x pe_aws_install.sh\n",
+                                "#./pe_aws_install.sh\n",
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoCentos71": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-a042f4d8",
+                "InstanceType": "t2.large",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoCentos72": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-a042f4d8",
+                "InstanceType": "t2.medium",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoCentos73": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-a042f4d8",
+                "InstanceType": "t2.medium",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoCentos74": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-a042f4d8",
+                "InstanceType": "t2.medium",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoCentos75": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-a042f4d8",
+                "InstanceType": "t2.medium",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoCentos76": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-a042f4d8",
+                "InstanceType": "t2.medium",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "set -ex\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoWin20161": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-c9deafb1",
+                "InstanceType": "t2.large",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "# comment",
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoWin20162": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-c9deafb1",
+                "InstanceType": "t2.large",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "# comment",
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoWin20163": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-c9deafb1",
+                "InstanceType": "t2.large",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "# comment",
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "MSmithDemoWin20164": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-c9deafb1",
+                "InstanceType": "t2.large",
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MSmithSG"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "Lifetime"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "# comment",
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MSmithPublicRoute"
+            ]
+        },
+        "PuppetDemoRoutetoSubnet": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "MSmithRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "MSmithSubnet"
+                }
+            }
+        }
+    }
+}
