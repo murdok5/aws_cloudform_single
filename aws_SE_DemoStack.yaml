@@ -57,6 +57,12 @@
                     },
                     {
                         "IpProtocol": "tcp",
+                        "FromPort": "4433",
+                        "ToPort": "4433",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
                         "FromPort": "7000",
                         "ToPort": "7000",
                         "CidrIp": "0.0.0.0/0"
@@ -89,6 +95,12 @@
                         "IpProtocol": "tcp",
                         "FromPort": "8140",
                         "ToPort": "8140",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8170",
+                        "ToPort": "8170",
                         "CidrIp": "0.0.0.0/0"
                     },
                     {
@@ -175,6 +187,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-master"},
                     {
                         "Key": "createdby",
                         "Value": {
@@ -207,6 +220,7 @@
                             [
                                 "#!/bin/bash\n",
                                 "yum update -y aws-cfn-bootstrap\n",
+                                "hostnamectl set-hostname master.puppet.cloud\n",
                                 "set -ex\n",
                             ]
                         ]
@@ -234,6 +248,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-gitlab"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -266,6 +281,7 @@
                             [
                                 "#!/bin/bash\n",
                                 "yum update -y aws-cfn-bootstrap\n",
+                                "hostnamectl set-hostname gitlab.puppet.cloud\n",
                                 "set -ex\n",
                             ]
                         ]
@@ -276,13 +292,13 @@
                 "MikeSmithSEPublicRoute"
             ]
         },
-        "MikeSmithSEDemoUbuntu161": {
+        "MikeSmithSEDemoCD4PE": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-d55015ad",
+                "ImageId": "ami-a042f4d8",
                 "InstanceType": "t2.large",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
@@ -293,6 +309,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-cd4pe"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -324,6 +341,9 @@
                             "",
                             [
                                 "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "hostnamectl set-hostname cd4pe.puppet.cloud\n",
+                                "set -ex\n",
                             ]
                         ]
                     }
@@ -333,13 +353,13 @@
                 "MikeSmithSEPublicRoute"
             ]
         },
-        "MikeSmithSEDemoUbuntu162": {
+        "MikeSmithSEDemoCD4PEAgent": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-d55015ad",
+                "ImageId": "ami-a042f4d8",
                 "InstanceType": "t2.medium",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
@@ -350,6 +370,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-cd4pe-agent"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -381,6 +402,9 @@
                             "",
                             [
                                 "#!/bin/bash\n",
+                                "yum update -y aws-cfn-bootstrap\n",
+                                "hostnamectl set-hostname cd4pe-agent.puppet.cloud\n",
+                                "set -ex\n",
                             ]
                         ]
                     }
@@ -390,6 +414,122 @@
                 "MikeSmithSEPublicRoute"
             ]
         },
+        # "MikeSmithSEDemoUbuntu181": {
+        #     "Type": "AWS::EC2::Instance",
+        #     "Properties": {
+        #         "KeyName": {
+        #             "Ref": "KeyPair"
+        #         },
+        #         "ImageId": "ami-005bdb005fb00e791",
+        #         "InstanceType": "t2.medium",
+        #         "SubnetId": {
+        #             "Ref": "MikeSmithSESubnet"
+        #         },
+        #         "SecurityGroupIds": [
+        #             {
+        #                 "Ref": "MikeSmithSESG"
+        #             }
+        #         ],
+        #         "Tags": [
+        #             {"Key" : "Name", "Value" : "msmith-ubuntu18-01"},
+        #             {
+        #                 "Key": "created_by",
+        #                 "Value": {
+        #                     "Ref": "PuppetCreatedBy"
+        #                 }
+        #             },
+        #             {
+        #                 "Key": "department",
+        #                 "Value": {
+        #                     "Ref": "PuppetDepartment"
+        #                 }
+        #             },
+        #             {
+        #                 "Key": "project",
+        #                 "Value": {
+        #                     "Ref": "PuppetProject"
+        #                 }
+        #             },
+        #             {
+        #                 "Key": "lifetime",
+        #                 "Value": {
+        #                     "Ref": "lifetime"
+        #                 }
+        #             }
+        #         ],
+        #         "UserData": {
+        #             "Fn::Base64": {
+        #                 "Fn::Join": [
+        #                     "",
+        #                     [
+        #                         "#!/bin/bash\n",
+        #                     ]
+        #                 ]
+        #             }
+        #         }
+        #     },
+        #     "DependsOn": [
+        #         "MikeSmithSEPublicRoute"
+        #     ]
+        # },
+        # "MikeSmithSEDemoUbuntu182": {
+        #     "Type": "AWS::EC2::Instance",
+        #     "Properties": {
+        #         "KeyName": {
+        #             "Ref": "KeyPair"
+        #         },
+        #         "ImageId": "ami-005bdb005fb00e791",
+        #         "InstanceType": "t2.medium",
+        #         "SubnetId": {
+        #             "Ref": "MikeSmithSESubnet"
+        #         },
+        #         "SecurityGroupIds": [
+        #             {
+        #                 "Ref": "MikeSmithSESG"
+        #             }
+        #         ],
+        #         "Tags": [
+        #             {"Key" : "Name", "Value" : "msmith-ubuntu18-02"},
+        #             {
+        #                 "Key": "created_by",
+        #                 "Value": {
+        #                     "Ref": "PuppetCreatedBy"
+        #                 }
+        #             },
+        #             {
+        #                 "Key": "department",
+        #                 "Value": {
+        #                     "Ref": "PuppetDepartment"
+        #                 }
+        #             },
+        #             {
+        #                 "Key": "project",
+        #                 "Value": {
+        #                     "Ref": "PuppetProject"
+        #                 }
+        #             },
+        #             {
+        #                 "Key": "lifetime",
+        #                 "Value": {
+        #                     "Ref": "lifetime"
+        #                 }
+        #             }
+        #         ],
+        #         "UserData": {
+        #             "Fn::Base64": {
+        #                 "Fn::Join": [
+        #                     "",
+        #                     [
+        #                         "#!/bin/bash\n",
+        #                     ]
+        #                 ]
+        #             }
+        #         }
+        #     },
+        #     "DependsOn": [
+        #         "MikeSmithSEPublicRoute"
+        #     ]
+        # },
         "MikeSmithSEDemoCentos71": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
@@ -407,6 +547,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-centos-01"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -439,6 +580,7 @@
                             [
                                 "#!/bin/bash\n",
                                 "yum update -y aws-cfn-bootstrap\n",
+                                "hostnamectl set-hostname centos7-1.puppet.cloud\n",
                                 "set -ex\n",
                             ]
                         ]
@@ -466,6 +608,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-centos-02"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -498,6 +641,7 @@
                             [
                                 "#!/bin/bash\n",
                                 "yum update -y aws-cfn-bootstrap\n",
+                                "hostnamectl set-hostname centos7-2.puppet.cloud\n",
                                 "set -ex\n",
                             ]
                         ]
@@ -525,6 +669,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-centos-03"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -557,6 +702,7 @@
                             [
                                 "#!/bin/bash\n",
                                 "yum update -y aws-cfn-bootstrap\n",
+                                "hostnamectl set-hostname centos7-3.puppet.cloud\n",
                                 "set -ex\n",
                             ]
                         ]
@@ -584,6 +730,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-centos-04"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -616,6 +763,7 @@
                             [
                                 "#!/bin/bash\n",
                                 "yum update -y aws-cfn-bootstrap\n",
+                                "hostnamectl set-hostname centos7-4.puppet.cloud\n",
                                 "set -ex\n",
                             ]
                         ]
@@ -626,13 +774,13 @@
                 "MikeSmithSEPublicRoute"
             ]
         },
-        "MikeSmithSEDemoWin20161": {
+        "MikeSmithSEDemoWin20191": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-c9deafb1",
+                "ImageId": "ami-0819e2bf4e3159ac9",
                 "InstanceType": "t2.large",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
@@ -643,6 +791,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-win2019-01"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -673,7 +822,8 @@
                         "Fn::Join": [
                             "",
                             [
-                                "#Rename-Computer -NewName win2016-1 -Reboot\n",
+                                "net user administrator Puppet4Life!\n",
+                                "Rename-Computer -NewName win2019-1 -Reboot\n",
                             ]
                         ]
                     }
@@ -683,13 +833,13 @@
                 "MikeSmithSEPublicRoute"
             ]
         },
-        "MikeSmithSEDemoWin20162": {
+        "MikeSmithSEDemoWin20192": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-c9deafb1",
+                "ImageId": "ami-0819e2bf4e3159ac9",
                 "InstanceType": "t2.large",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
@@ -700,6 +850,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-win2019-02"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -730,7 +881,8 @@
                         "Fn::Join": [
                             "",
                             [
-                                "#Rename-Computer -NewName win2016-2 -Reboot\n",
+                                "net user administrator Puppet4Life!\n",
+                                "Rename-Computer -NewName win2019-2 -Reboot\n",
                             ]
                         ]
                     }
@@ -740,13 +892,13 @@
                 "MikeSmithSEPublicRoute"
             ]
         },
-        "MikeSmithSEDemoWin20163": {
+        "MikeSmithSEDemoWin20193": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-c9deafb1",
+                "ImageId": "ami-0819e2bf4e3159ac9",
                 "InstanceType": "t2.large",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
@@ -757,6 +909,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-win2019-03"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -787,7 +940,8 @@
                         "Fn::Join": [
                             "",
                             [
-                                "#Rename-Computer -NewName win2016-3 -Reboot\n",
+                                "net user administrator Puppet4Life!\n",
+                                "Rename-Computer -NewName win2019-3 -Reboot\n",
                             ]
                         ]
                     }
@@ -797,13 +951,13 @@
                 "MikeSmithSEPublicRoute"
             ]
         },
-        "MikeSmithSEDemoWin20164": {
+        "MikeSmithSEDemoWin20194": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "ImageId": "ami-c9deafb1",
+                "ImageId": "ami-0819e2bf4e3159ac9",
                 "InstanceType": "t2.large",
                 "SubnetId": {
                     "Ref": "MikeSmithSESubnet"
@@ -814,6 +968,7 @@
                     }
                 ],
                 "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-win2019-04"},
                     {
                         "Key": "created_by",
                         "Value": {
@@ -844,7 +999,67 @@
                         "Fn::Join": [
                             "",
                             [
-                                "#Rename-Computer -NewName win2016-4 -Reboot\n",
+                                "net user administrator Puppet4Life!\n",
+                                "Rename-Computer -NewName win2019-4 -Reboot\n",
+                            ]
+                        ]
+                    }
+                }
+            },
+            "DependsOn": [
+                "MikeSmithSEPublicRoute"
+            ]
+        },
+        "MikeSmithSEDemoWin20195": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": "ami-0819e2bf4e3159ac9",
+                "InstanceType": "t2.large",
+                "SubnetId": {
+                    "Ref": "MikeSmithSESubnet"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "MikeSmithSESG"
+                    }
+                ],
+                "Tags": [
+                    {"Key" : "Name", "Value" : "msmith-win2019-05"},
+                    {
+                        "Key": "created_by",
+                        "Value": {
+                            "Ref": "PuppetCreatedBy"
+                        }
+                    },
+                    {
+                        "Key": "department",
+                        "Value": {
+                            "Ref": "PuppetDepartment"
+                        }
+                    },
+                    {
+                        "Key": "project",
+                        "Value": {
+                            "Ref": "PuppetProject"
+                        }
+                    },
+                    {
+                        "Key": "lifetime",
+                        "Value": {
+                            "Ref": "lifetime"
+                        }
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "net user administrator Puppet4Life!\n",
+                                "Rename-Computer -NewName win2019-5 -Reboot\n",
                             ]
                         ]
                     }
